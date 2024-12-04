@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Chat App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <a href="login.html">Login</a>
+    <a href="register.html">Register</a>
+    <a href="register.html">Profile</a>
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <h1>RT-Chat</h1>
+        <button id="logoutButton" class="btn btn-danger btn-sm">Logout</button>
+    </header>
+
+    <!-- Main container -->
+    <main class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="userSection">
+            <img id="userAvatar" src="" alt="Avatar">
+            <h3 id="userName">Guest</h3>
+            <hr>
+            <h4>Active Users</h4>
+            <ul id="usersList" class="users-list"></ul>
+        </aside>
+
+        <!-- Chat area -->
+        <section class="chat-area">
+            <ul id="messages" class="messages-list">
+                <li class="message public">
+                    <img src="" alt="Avatar" class="avatar">
+                    <div class="message-content">
+                        <span class="username"></span>
+                        <span class="timestamp"></span>
+                        <p class="message-text"></p>
+                    </div>
+                </li>
+            </ul>
+            <div id="typingIndicator" class="typing-indicator"></div>
+            <div class="message-input-container">
+                <input id="messageInput" class="message-input" type="text" placeholder="Type a message">
+                <button id="sendButton" class="send-button">Send</button>
+            </div>
+        </section>
+
+        <!-- Private Message Section -->
+        <section class="sidebar">
+            <h3>Send Private Message</h3>
+            <select id="recipientSelect" class="form-select mb-2"></select>
+            <div class="d-flex">
+                <input id="privateMessageInput" class="form-control me-2" type="text" placeholder="Type private message">
+                <button id="sendPrivateButton" class="btn btn-success">Send</button>
+            </div>
+        </section>
+        
+        <section class="sidebar">
+            <!-- Create Group -->
+<div id="createGroupSection">
+    <h3>Create a Group</h3>
+    <input type="text" id="newGroupName" placeholder="Group Name">
+    <button id="createGroupButton">Create Group</button>
+</div>
+
+            <h3>Group Chat</h3>
+            <select id="groupSelect" class="form-select mb-2">
+                <option value="">Select Group</option>
+            </select>
+            <button id="joinGroupButton">Join</button>
+            <ul id="groupMessages" class="messages-list"></ul>
+            <div class="d-flex">
+                <input id="groupMessageInput" class="form-control me-2" type="text" placeholder="Type group message">
+                <button id="sendGroupMessageButton" class="btn btn-primary">Send</button>
+            </div>
+        </section>
+        
+        <section class="search">
+            <input id="searchInput" class="form-control mb-2" type="text" placeholder="Search messages..." />
+        </section>
+        
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please log in first.');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Fetch user data and active users
+            fetch('/api/users/me', { 
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('userAvatar').src = data.data.avatar || 'https://via.placeholder.com/80';
+                    document.getElementById('userName').textContent = data.data.username;
+                } else {
+                    alert('Error loading profile');
+                }
+            })
+            .catch(err => console.error('Error fetching profile:', err));
+
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                localStorage.removeItem('token');
+                window.location.href = '/login.html';
+            });
+        });
+    </script>
+<script src="js/chat.js"></script>
+</body>
+</html>
+
